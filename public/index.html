@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
+            background-color: #4CAF50;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        form input, form button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .api-list {
+            margin-top: 20px;
+        }
+        .api-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .api-item button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .api-item button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>API Management</h1>
+</header>
+
+<div class="container">
+    <h2>Add New API</h2>
+    <form id="addApiForm">
+        <input type="text" id="apiName" placeholder="API Name" required />
+        <input type="url" id="apiUrl" placeholder="API URL" required />
+        <input type="number" id="apiLimit" placeholder="API Limit" required />
+        <button type="submit">Add API</button>
+    </form>
+
+    <h2>Existing APIs</h2>
+    <div class="api-list" id="apiList">
+        <!-- API list will be populated here -->
+    </div>
+</div>
+
+<script>
+    // Function to fetch and display all APIs
+    function loadApiList() {
+        fetch('/api/all')
+            .then(response => response.json())
+            .then(apis => {
+                const apiListDiv = document.getElementById('apiList');
+                apiListDiv.innerHTML = '';
+                apis.forEach(api => {
+                    const apiItem = document.createElement('div');
+                    apiItem.classList.add('api-item');
+                    apiItem.innerHTML = `
+                        <span><strong>${api.name}</strong> - ${api.url} (Limit: ${api.limit}) [Owner: ${api.owner}]</span>
+                        <button onclick="deleteApi(${api.id})">Delete</button>
+                    `;
+                    apiListDiv.appendChild(apiItem);
+                });
+            });
+    }
+
+    // Add new API
+    document.getElementById('addApiForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const name = document.getElementById('apiName').value;
+        const url = document.getElementById('apiUrl').value;
+        const limit = document.getElementById('apiLimit').value;
+
+        fetch('/api/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, url, limit }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert('API added successfully!');
+            loadApiList(); // Reload the API list
+        })
+        .catch(error => {
+            alert('Error adding API');
+        });
+    });
+
+    // Delete API
+    function deleteApi(id) {
+        if (confirm('Are you sure you want to delete this API?')) {
+            fetch(`/api/delete/${id}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(() => {
+                alert('API deleted successfully!');
+                loadApiList(); // Reload the API list
+            })
+            .catch(error => {
+                alert('Error deleting API');
+            });
+        }
+    }
+
+    // Initial load of the API list
+    loadApiList();
+</script>
+
+</body>
+</html>
