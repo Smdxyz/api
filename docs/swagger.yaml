@@ -1,0 +1,72 @@
+swagger: '2.0'
+info:
+  description: API Management System with owner key 'Sann'
+  version: 1.0.0
+  title: API Management
+paths:
+  /api/add:
+    post:
+      summary: Add a new API
+      parameters:
+        - name: name
+          in: body
+          required: true
+          schema:
+            type: string
+        - name: url
+          in: body
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: body
+          required: false
+          schema:
+            type: integer
+      responses:
+        201:
+          description: API added successfully
+  /api/delete/{id}:
+    delete:
+      summary: Delete an API by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: API deleted successfully
+  /api/limit/{id}:
+    put:
+      summary: Update API limit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+        - name: limit
+          in: body
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: API limit updated
+  /api/stats/{id}:
+    get:
+      summary: Get API stats (errors and successes)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: API stats retrieved
+  /api/all:
+    get:
+      summary: Get all APIs
+      responses:
+        200:
+          description: List of all APIs
